@@ -48,4 +48,10 @@ void *my_malloc(size_t size){
 void my_free(void *ptr){
     block_header_t *header = (block_header_t *)ptr - 1;
     header->is_free = true;
+
+    //coalesce 2 consecutive blocks, implement recursive later
+    if (header->next != NULL && header->next->is_free){
+        header->size += header->next->size + sizeof(block_header_t);
+        header->next = header->next->next;
+    }
 }

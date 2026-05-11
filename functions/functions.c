@@ -44,3 +44,8 @@ void *my_malloc(size_t size){
 
     return NULL; // no block found
 }
+
+void my_free(void *ptr){
+    block_header_t *header = (block_header_t *)ptr - 1;
+    header->is_free = true;
+}

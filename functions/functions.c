@@ -21,3 +21,26 @@ void heap_init(void){
 
 //malloc - find block where is_free == true and size >= requested size
 
+void *my_malloc(size_t size){
+    block_header_t *current = head;
+
+    while (current != NULL) {
+        if (current->is_free == true && size <= current->size) {
+            //stamp new_block at current + 1 + size
+            block_header_t *new_block = (block_header_t *)((uint8_t *)(current + 1) + size);
+            //new block is the new unallocated space, current becomes the allocated block
+            new_block->size = current->size - size - sizeof(block_header_t);
+            new_block->is_free = true;
+            new_block->next = current->next;
+            // update current's fields
+            current->size = size;
+            current->is_free = false;
+            current->next = new_block;
+            // return pointer to current's data region
+            return (void*)(current + 1);
+        }
+        current = current->next;
+    }
+
+    return NULL; // no block found
+}

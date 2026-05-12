@@ -1,5 +1,7 @@
 #include <stdint.h> 
 #include <stdbool.h>
+#include <stdio.h>
+
 #define HEAP_SIZE (1 << 20) //1 MB
 
 uint8_t heap[HEAP_SIZE];
@@ -84,4 +86,21 @@ void *my_realloc(void *ptr, size_t new_size) {
     memcpy(new_ptr, ptr, block->size);
     my_free(ptr);
     return new_ptr;
+}
+
+void *my_calloc(size_t num, size_t size){
+    void *block = my_malloc(num * size);
+    if (block == NULL) return NULL;
+    memset(block, 0, num * size);
+    return block;
+}
+
+void heap_dump(void){
+    block_header_t *current = head;
+    int i = 0;
+    while (current != NULL){
+        printf("block %d: size: %zu, free: %d \n", i, current->size, current->is_free);
+        current = current->next;
+        i++;
+    }
 }

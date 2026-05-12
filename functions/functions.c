@@ -55,3 +55,33 @@ void my_free(void *ptr){
         header->next = header->next->next;
     }
 }
+
+void *my_realloc(void *ptr, size_t new_size) {
+    if (ptr == NULL){
+        return my_malloc(new_size);
+    }
+    if (new_size == 0){
+        my_free(ptr);
+        return NULL;
+    }
+    
+    block_header_t *block = (block_header_t *)ptr - 1;
+    
+    //already fits
+    if (new_size <= block->size) return ptr;
+
+    //in place expansion
+    if (block->next != NULL && block->next->is_free && 
+        new_size <= block->size + block->next->size + sizeof(block_header_t)){
+        block->size = new_size;
+        block->next = block->next->next;
+        return ptr;
+    }
+
+    //fallback: malloc, copy, free
+    void *new_ptr = my_malloc(new_size);
+    if (new_ptr == NULL) return NULL;
+    memcpy(new_ptr, ptr, block->size);
+    my_free(ptr);
+    return new_ptr;
+}

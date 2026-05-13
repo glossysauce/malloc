@@ -1,6 +1,8 @@
 #include <stdint.h> 
 #include <stdbool.h>
 #include <stdio.h>
+#include <string.h>
+#include "functions.h"
 
 #define HEAP_SIZE (1 << 20) //1 MB
 
@@ -31,13 +33,20 @@ void *my_malloc(size_t size){
             //stamp new_block at current + 1 + size
             block_header_t *new_block = (block_header_t *)((uint8_t *)(current + 1) + size);
             //new block is the new unallocated space, current becomes the allocated block
-            new_block->size = current->size - size - sizeof(block_header_t);
-            new_block->is_free = true;
-            new_block->next = current->next;
-            // update current's fields
+            if (current->size - size < sizeof(block_header_t)){ //no space
+                new_block = NULL;
+            }
+            else{
+                new_block->size = current->size - size - sizeof(block_header_t);
+                new_block->is_free = true;
+                new_block->next = current->next;
+                // update current's fields
+
+                current->next = new_block;
+            }
+            
             current->size = size;
             current->is_free = false;
-            current->next = new_block;
             // return pointer to current's data region
             return (void*)(current + 1);
         }

@@ -4,6 +4,8 @@
 #include "functions.h"
 #include <string.h>
 
+#define HEAP_SIZE (1 << 20) //1 MB
+
 #define PASS(name) printf("[PASS] %s\n", name)
 #define FAIL(name) printf("[FAIL] %s\n", name)
 #define CHECK(name, cond) do { if (cond) PASS(name); else FAIL(name); } while(0)
@@ -136,9 +138,13 @@ void test_fragmentation(void){
     heap_init();
     void *blocks[10];
     for (int i = 0; i < 10; i++) blocks[i] = my_malloc(64);
+
+    void *tail = my_malloc(HEAP_SIZE - 24 - 10 * (64 + 24)); // drain the rest
+
     for (int i = 0; i < 10; i += 2) my_free(blocks[i]);
-    void *big = my_malloc(256);
+    void *big = my_malloc(128);
     CHECK("fragmented heap cannot service large alloc without coalescing", big == NULL);
+    heap_dump();
 }
 
 int main(void){

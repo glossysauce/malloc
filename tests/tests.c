@@ -139,7 +139,7 @@ void test_fragmentation(void){
     void *blocks[10];
     for (int i = 0; i < 10; i++) blocks[i] = my_malloc(64);
 
-    void *tail = my_malloc(HEAP_SIZE - 24 - 10 * (64 + 24)); // drain the rest
+    void *tail = my_malloc(HEAP_SIZE - 32 - 10 * (64 + 32)); // drain the rest
 
     for (int i = 0; i < 10; i += 2) my_free(blocks[i]);
     void *big = my_malloc(128);

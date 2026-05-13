@@ -12,6 +12,7 @@ typedef struct block_header{
     size_t size;
     bool is_free;
     struct block_header* next;
+    struct block_header* prev;
 }block_header_t;
 
 static block_header_t *head = NULL;
@@ -21,6 +22,7 @@ void heap_init(void){
     head->size = HEAP_SIZE - sizeof(block_header_t);
     head->is_free = true;
     head->next = NULL;
+    head->prev = NULL;
 }
 
 //malloc - find block where is_free == true and size >= requested size
@@ -40,6 +42,7 @@ void *my_malloc(size_t size){
                 new_block->size = current->size - size - sizeof(block_header_t);
                 new_block->is_free = true;
                 new_block->next = current->next;
+                new_block->prev = current;
                 // update current's fields
 
                 current->next = new_block;
@@ -60,10 +63,16 @@ void my_free(void *ptr){
     block_header_t *header = (block_header_t *)ptr - 1;
     header->is_free = true;
 
-    //coalesce 2 consecutive blocks, implement recursive later
+    //coalesce 2 consecutive blocks forward
     if (header->next != NULL && header->next->is_free){
         header->size += header->next->size + sizeof(block_header_t);
         header->next = header->next->next;
+    }
+    //backwards coalsece
+    if (header->prev != NULL && header->prev->is_free){
+        header->prev->size += header->size + sizeof(block_header_t);
+        header->prev->next = header->next;
+        if(header->next != NULL) header->next->prev = header->prev;
     }
 }
 
